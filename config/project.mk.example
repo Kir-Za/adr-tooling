@@ -1,0 +1,40 @@
+# -----------------------------------------------------------------------------
+# Project
+# -----------------------------------------------------------------------------
+
+PROJECT_NAME :=  project
+
+# ADR repository, relative to adr-tooling repository.
+ADR_REPO := ../ project-adr
+
+
+# -----------------------------------------------------------------------------
+# ADR repository structure
+# -----------------------------------------------------------------------------
+
+ADR_TEMPLATE := docs/adrs/ai/template.md
+ADR_APPROVED := docs/adrs/ai/approved
+ADR_PROPOSED := docs/adrs/ai/proposed
+ADR_DIAGRAMS := docs/diagrams
+
+
+# -----------------------------------------------------------------------------
+# OpenCode models
+# -----------------------------------------------------------------------------
+
+MODEL_ARCHITECT := openai/gpt-6-astra
+MODEL_WRITER := openai/gpt-6-sol
+MODEL_REVIEWER := openai/gpt-6-astra
+MODEL_FINDER := openai/gpt-6-luna-fast
+MODEL_AUDITOR := openai/gpt-6-astra
+
+
+# -----------------------------------------------------------------------------
+# OpenCode agents
+# -----------------------------------------------------------------------------
+
+AGENT_ARCHITECT := architect
+AGENT_WRITER := adr-writer
+AGENT_REVIEWER := adr-reviewer
+AGENT_FINDER := architecture-finder
+AGENT_AUDITOR := consistency-auditor
