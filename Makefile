@@ -41,6 +41,21 @@ export AGENT_REVIEWER
 export AGENT_FINDER
 export AGENT_AUDITOR
 
+export LANGFUSE_ENABLED
+export LANGFUSE_BASE_URL
+export LANGFUSE_PROMPT_LABEL
+
+export LANGFUSE_PROMPT_ARCHITECT
+export LANGFUSE_PROMPT_WRITER
+export LANGFUSE_PROMPT_REVIEWER
+export LANGFUSE_PROMPT_FINDER
+export LANGFUSE_PROMPT_AUDITOR
+
+export LANGFUSE_VERSION_ARCHITECT
+export LANGFUSE_VERSION_WRITER
+export LANGFUSE_VERSION_REVIEWER
+export LANGFUSE_VERSION_FINDER
+export LANGFUSE_VERSION_AUDITOR
 
 # -----------------------------------------------------------------------------
 # Help
@@ -279,21 +294,36 @@ render-agents:
 	@python3 scripts/render.py render \
 		templates/AGENTS.md.tpl \
 		AGENTS.md
-	@python3 scripts/render.py render \
-		templates/agents/architecture-finder.md.tpl \
-		.opencode/agents/architecture-finder.md
-	@python3 scripts/render.py render \
-		templates/agents/architect.md.tpl \
-		.opencode/agents/architect.md
-	@python3 scripts/render.py render \
-		templates/agents/adr-writer.md.tpl \
-		.opencode/agents/adr-writer.md
-	@python3 scripts/render.py render \
-		templates/agents/adr-reviewer.md.tpl \
-		.opencode/agents/adr-reviewer.md
-	@python3 scripts/render.py render \
-		templates/agents/consistency-auditor.md.tpl \
-		.opencode/agents/consistency-auditor.md
+
+	@python3 scripts/render_agent.py render \
+		--template templates/agents/architecture-finder.md.tpl \
+		--output .opencode/agents/architecture-finder.md \
+		--prompt-name "$(LANGFUSE_PROMPT_FINDER)" \
+		--prompt-version "$(LANGFUSE_VERSION_FINDER)"
+
+	@python3 scripts/render_agent.py render \
+		--template templates/agents/architect.md.tpl \
+		--output .opencode/agents/architect.md \
+		--prompt-name "$(LANGFUSE_PROMPT_ARCHITECT)" \
+		--prompt-version "$(LANGFUSE_VERSION_ARCHITECT)"
+
+	@python3 scripts/render_agent.py render \
+		--template templates/agents/adr-writer.md.tpl \
+		--output .opencode/agents/adr-writer.md \
+		--prompt-name "$(LANGFUSE_PROMPT_WRITER)" \
+		--prompt-version "$(LANGFUSE_VERSION_WRITER)"
+
+	@python3 scripts/render_agent.py render \
+		--template templates/agents/adr-reviewer.md.tpl \
+		--output .opencode/agents/adr-reviewer.md \
+		--prompt-name "$(LANGFUSE_PROMPT_REVIEWER)" \
+		--prompt-version "$(LANGFUSE_VERSION_REVIEWER)"
+
+	@python3 scripts/render_agent.py render \
+		--template templates/agents/consistency-auditor.md.tpl \
+		--output .opencode/agents/consistency-auditor.md \
+		--prompt-name "$(LANGFUSE_PROMPT_AUDITOR)" \
+		--prompt-version "$(LANGFUSE_VERSION_AUDITOR)"
 
 
 .PHONY: render-check-agents
@@ -301,21 +331,36 @@ render-check-agents:
 	@python3 scripts/render.py check \
 		templates/AGENTS.md.tpl \
 		AGENTS.md
-	@python3 scripts/render.py check \
-		templates/agents/architecture-finder.md.tpl \
-		.opencode/agents/architecture-finder.md
-	@python3 scripts/render.py check \
-		templates/agents/architect.md.tpl \
-		.opencode/agents/architect.md
-	@python3 scripts/render.py check \
-		templates/agents/adr-writer.md.tpl \
-		.opencode/agents/adr-writer.md
-	@python3 scripts/render.py check \
-		templates/agents/adr-reviewer.md.tpl \
-		.opencode/agents/adr-reviewer.md
-	@python3 scripts/render.py check \
-		templates/agents/consistency-auditor.md.tpl \
-		.opencode/agents/consistency-auditor.md
+
+	@python3 scripts/render_agent.py check \
+		--template templates/agents/architecture-finder.md.tpl \
+		--output .opencode/agents/architecture-finder.md \
+		--prompt-name "$(LANGFUSE_PROMPT_FINDER)" \
+		--prompt-version "$(LANGFUSE_VERSION_FINDER)"
+
+	@python3 scripts/render_agent.py check \
+		--template templates/agents/architect.md.tpl \
+		--output .opencode/agents/architect.md \
+		--prompt-name "$(LANGFUSE_PROMPT_ARCHITECT)" \
+		--prompt-version "$(LANGFUSE_VERSION_ARCHITECT)"
+
+	@python3 scripts/render_agent.py check \
+		--template templates/agents/adr-writer.md.tpl \
+		--output .opencode/agents/adr-writer.md \
+		--prompt-name "$(LANGFUSE_PROMPT_WRITER)" \
+		--prompt-version "$(LANGFUSE_VERSION_WRITER)"
+
+	@python3 scripts/render_agent.py check \
+		--template templates/agents/adr-reviewer.md.tpl \
+		--output .opencode/agents/adr-reviewer.md \
+		--prompt-name "$(LANGFUSE_PROMPT_REVIEWER)" \
+		--prompt-version "$(LANGFUSE_VERSION_REVIEWER)"
+
+	@python3 scripts/render_agent.py check \
+		--template templates/agents/consistency-auditor.md.tpl \
+		--output .opencode/agents/consistency-auditor.md \
+		--prompt-name "$(LANGFUSE_PROMPT_AUDITOR)" \
+		--prompt-version "$(LANGFUSE_VERSION_AUDITOR)"
 
 
 .PHONY: render-commands
@@ -436,3 +481,100 @@ bootstrap:
 	@echo
 	@echo "Project: $(PROJECT_NAME)"
 	@echo "ADR repository: $(ADR_REPO_ABS)"
+
+
+# -----------------------------------------------------------------------------
+# Optional Langfuse integration
+# -----------------------------------------------------------------------------
+
+.PHONY: langfuse-check-config
+langfuse-check-config:
+	@test "$(LANGFUSE_ENABLED)" = "1" || { \
+		echo "ERROR: Langfuse integration is disabled"; \
+		exit 1; \
+	}
+	@test -n "$(LANGFUSE_BASE_URL)" || { \
+		echo "ERROR: LANGFUSE_BASE_URL is not configured"; \
+		exit 1; \
+	}
+	@test -n "$(LANGFUSE_PROMPT_LABEL)" || { \
+		echo "ERROR: LANGFUSE_PROMPT_LABEL is not configured"; \
+		exit 1; \
+	}
+	@echo "langfuse config: OK"
+
+
+.PHONY: langfuse-check-auth
+langfuse-check-auth:
+	@test -n "$$LANGFUSE_PUBLIC_KEY" || { \
+		echo "ERROR: LANGFUSE_PUBLIC_KEY is not set"; \
+		exit 1; \
+	}
+	@test -n "$$LANGFUSE_SECRET_KEY" || { \
+		echo "ERROR: LANGFUSE_SECRET_KEY is not set"; \
+		exit 1; \
+	}
+	@echo "langfuse auth: PRESENT"
+
+
+.PHONY: langfuse-check-health
+langfuse-check-health: langfuse-check-config
+	@curl --fail --silent \
+		"$(LANGFUSE_BASE_URL)/api/public/health?failIfDatabaseUnavailable=true" \
+		>/dev/null || { \
+			echo "ERROR: Langfuse is unavailable: $(LANGFUSE_BASE_URL)"; \
+			exit 1; \
+	}
+	@echo "langfuse health: OK"
+
+
+.PHONY: langfuse-check-api
+langfuse-check-api: langfuse-check-config langfuse-check-auth
+	@curl --fail --silent \
+		-u "$$LANGFUSE_PUBLIC_KEY:$$LANGFUSE_SECRET_KEY" \
+		"$(LANGFUSE_BASE_URL)/api/public/projects" \
+		>/dev/null || { \
+			echo "ERROR: Langfuse API authentication failed"; \
+			exit 1; \
+	}
+	@echo "langfuse api: OK"
+
+
+.PHONY: langfuse-check
+langfuse-check: \
+	langfuse-check-config \
+	langfuse-check-auth \
+	langfuse-check-health \
+	langfuse-check-api
+	@echo
+	@echo "Langfuse: OK"
+
+
+# -----------------------------------------------------------------------------
+# Langfuse Prompt Registry
+# -----------------------------------------------------------------------------
+
+.PHONY: prompts-push
+prompts-push: langfuse-check
+	@python3 scripts/langfuse_prompt.py push \
+		--name "$(LANGFUSE_PROMPT_ARCHITECT)" \
+		--label "$(LANGFUSE_PROMPT_LABEL)" \
+		--template templates/agents/architect.md.tpl
+	@python3 scripts/langfuse_prompt.py push \
+		--name "$(LANGFUSE_PROMPT_WRITER)" \
+		--label "$(LANGFUSE_PROMPT_LABEL)" \
+		--template templates/agents/adr-writer.md.tpl
+	@python3 scripts/langfuse_prompt.py push \
+		--name "$(LANGFUSE_PROMPT_REVIEWER)" \
+		--label "$(LANGFUSE_PROMPT_LABEL)" \
+		--template templates/agents/adr-reviewer.md.tpl
+	@python3 scripts/langfuse_prompt.py push \
+		--name "$(LANGFUSE_PROMPT_FINDER)" \
+		--label "$(LANGFUSE_PROMPT_LABEL)" \
+		--template templates/agents/architecture-finder.md.tpl
+	@python3 scripts/langfuse_prompt.py push \
+		--name "$(LANGFUSE_PROMPT_AUDITOR)" \
+		--label "$(LANGFUSE_PROMPT_LABEL)" \
+		--template templates/agents/consistency-auditor.md.tpl
+	@echo
+	@echo "Langfuse prompts push: OK"

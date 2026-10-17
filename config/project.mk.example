@@ -38,3 +38,31 @@ AGENT_WRITER := adr-writer
 AGENT_REVIEWER := adr-reviewer
 AGENT_FINDER := architecture-finder
 AGENT_AUDITOR := consistency-auditor
+
+
+# -----------------------------------------------------------------------------
+# Optional Langfuse integration
+# -----------------------------------------------------------------------------
+
+LANGFUSE_ENABLED := 1
+LANGFUSE_BASE_URL := http://localhost:3000
+LANGFUSE_PROMPT_LABEL := production
+
+LANGFUSE_PROMPT_ARCHITECT := adr/architect
+LANGFUSE_PROMPT_WRITER := adr/adr-writer
+LANGFUSE_PROMPT_REVIEWER := adr/adr-reviewer
+LANGFUSE_PROMPT_FINDER := adr/architecture-finder
+LANGFUSE_PROMPT_AUDITOR := adr/consistency-auditor
+
+# -----------------------------------------------------------------------------
+# Langfuse prompt selection
+# -----------------------------------------------------------------------------
+
+# Empty version means: use the latest prompt version from Langfuse.
+# Set a numeric version to pin a specific prompt.
+
+LANGFUSE_VERSION_ARCHITECT :=
+LANGFUSE_VERSION_WRITER :=
+LANGFUSE_VERSION_REVIEWER :=
+LANGFUSE_VERSION_FINDER :=
+LANGFUSE_VERSION_AUDITOR :=
