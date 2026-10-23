@@ -1,3 +1,14 @@
 
 # Local ADR project configuration
 config/project.mk
+
+# Python
+__pycache__/
+*.py[cod]
+.mypy_cache/
+
+# Generated OpenCode runtime
+AGENTS.md
+opencode.json
+.opencode/agents/
+.opencode/commands/

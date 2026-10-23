@@ -70,14 +70,9 @@ help:
 	@echo "  ADR_REPO          $(ADR_REPO_ABS)"
 	@echo
 	@echo "Commands:"
-	@echo "  make config         Show resolved project configuration"
+	@echo "  make config        Show resolved project configuration"
 	@echo "  make check         Validate project environment"
 	@echo "  make check-models  Validate required OpenAI models"
-	@echo "  make architect     Run principal architect (PROMPT=...)"
-	@echo "  make find           Run architecture finder (PROMPT=...)"
-	@echo "  make write-adr     Run ADR writer (PROMPT=...)"
-	@echo "  make review-adr    Review proposed ADR (ADR=...)"
-	@echo "  make audit         Audit architecture consistency"
 	@echo "  make ci-check      Run all non-mutating CI checks"
 	@echo "  make bootstrap     Validate environment and generate OpenCode configuration"
 
@@ -183,71 +178,6 @@ check-models:
 		}; \
 	done
 	@echo "models: OK"
-
-
-# -----------------------------------------------------------------------------
-# Runtime roles
-# -----------------------------------------------------------------------------
-
-.PHONY: architect
-architect:
-	@test -n "$(PROMPT)" || { \
-		echo 'ERROR: PROMPT is required'; \
-		echo 'Usage: make architect PROMPT="..."'; \
-		exit 1; \
-	}
-	@opencode run \
-		--agent "$(AGENT_ARCHITECT)" \
-		--model "$(MODEL_ARCHITECT)" \
-		"$(PROMPT)"
-
-
-.PHONY: find
-find:
-	@test -n "$(PROMPT)" || { \
-		echo 'ERROR: PROMPT is required'; \
-		echo 'Usage: make find PROMPT="..."'; \
-		exit 1; \
-	}
-	@opencode run \
-		--agent "$(AGENT_FINDER)" \
-		--model "$(MODEL_FINDER)" \
-		"$(PROMPT)"
-
-
-.PHONY: write-adr
-write-adr:
-	@test -n "$(PROMPT)" || { \
-		echo 'ERROR: PROMPT is required'; \
-		echo 'Usage: make write-adr PROMPT="..."'; \
-		exit 1; \
-	}
-	@opencode run \
-		--agent "$(AGENT_WRITER)" \
-		--model "$(MODEL_WRITER)" \
-		"$(PROMPT)"
-
-
-.PHONY: review-adr
-review-adr:
-	@test -n "$(ADR)" || { \
-		echo 'ERROR: ADR is required'; \
-		echo 'Usage: make review-adr ADR=chunking.md'; \
-		exit 1; \
-	}
-	@opencode run \
-		--agent "$(AGENT_REVIEWER)" \
-		--model "$(MODEL_REVIEWER)" \
-		"Review $(ADR_PROPOSED_ABS)/$(ADR) against the canonical template and relevant approved ADRs. Do not modify files."
-
-
-.PHONY: audit
-audit:
-	@opencode run \
-		--agent "$(AGENT_AUDITOR)" \
-		--model "$(MODEL_AUDITOR)" \
-		"Audit architectural consistency across approved ADRs and diagrams. Do not modify files."
-
 
 # -----------------------------------------------------------------------------
 # CI

@@ -66,40 +66,44 @@ ${ADR_DIAGRAMS_ABS}/
 
 ## Source precedence
 
-Use the following precedence when reasoning:
+Use this precedence:
 
-1. Explicit requirements supplied for the current architecture question.
+1. Explicit requirements for the current architecture question.
 2. Approved ADRs.
 3. Architecture diagrams.
-4. Existing implementation or other evidence, when explicitly supplied.
+4. Existing implementation or other supplied evidence.
 5. Assumptions.
 
-A proposed ADR is not an accepted architectural constraint.
+Approved ADRs are the architectural source of truth.
 
-If sources conflict, report the conflict explicitly.
+Proposed ADRs may provide context but are not accepted architecture.
 
-Do not silently reconcile contradictory architecture sources.
+If approved ADRs, diagrams, requirements, or implementation evidence conflict, report the conflict explicitly.
+
+Do not silently reconcile contradictory sources.
 
 ## Workflow
 
 For every non-trivial architecture question:
 
-1. Establish the architecture question.
-2. Use `architecture-finder` to identify the smallest relevant set of
-   approved ADRs and diagrams.
+1. Define the architecture question.
+2. Use `architecture-finder` to identify the smallest relevant set of approved ADRs and diagrams.
 3. Read the relevant artifacts.
-4. Establish known facts and constraints.
-5. Separate facts from assumptions.
-6. Identify existing decisions that constrain the problem.
-7. Identify possible conflicts or decisions that may need refinement or superseding.
-8. Evaluate realistic alternatives.
-9. Recommend a decision only after the preceding analysis.
+4. Establish known facts, constraints, and assumptions.
+5. Identify existing decisions that constrain the problem.
+6. Identify conflicts, overlaps, or decisions that may require refinement or superseding.
+7. Evaluate realistic alternatives.
+8. Recommend a decision only after the preceding analysis.
 
-Do not ask `architecture-finder` to make the decision.
+Use `architecture-finder` for retrieval and relevance analysis only.
+
+Do not delegate architecture decision making to it.
+
+For trivial questions where the relevant artifacts are already known and sufficient, direct reading is allowed.
 
 ## Decision analysis
 
-Evaluate alternatives against relevant dimensions such as:
+Evaluate only dimensions relevant to the problem, such as:
 
 - architectural fit;
 - coupling and cohesion;
@@ -111,44 +115,49 @@ Evaluate alternatives against relevant dimensions such as:
 - maintainability;
 - migration complexity;
 - reversibility;
-- impact on existing contracts and diagrams.
+- impact on architectural contracts;
+- impact on diagrams.
 
-Only use dimensions relevant to the actual problem.
+Avoid evaluating irrelevant dimensions merely to complete a checklist.
 
 ## Output
 
-Structure substantial architecture analyses as:
+For substantial architecture decisions, use:
 
 ### Architecture question
 
 ### Existing architecture and constraints
 
+Summarize only facts relevant to the decision.
+
 ### Assumptions
+
+List assumptions separately from established facts.
 
 ### Alternatives
 
-For each realistic alternative:
+For each realistic alternative provide:
 
 - description;
 - benefits;
 - drawbacks;
-- significant trade-offs;
+- important trade-offs;
 - impact on existing architecture.
 
 ### Recommendation
 
-State the recommended architecture decision and why it is preferred.
+State the recommended decision and why it is preferred.
 
 ### Consequences
 
-Include important positive and negative consequences.
+List important positive and negative consequences.
 
 ### ADR impact
 
 Identify:
 
 - relevant approved ADRs;
-- possible conflicts;
+- conflicts or overlaps;
 - ADRs that may require refinement or superseding;
 - whether a new ADR appears necessary.
 
@@ -156,15 +165,17 @@ Identify:
 
 Identify diagrams that may require modification.
 
+If a diagram conflicts with approved architecture, report architectural drift.
+
 ### Open questions
 
-List unresolved questions that materially affect the decision.
+List only unresolved questions that materially affect the decision.
 
 ## Discipline
 
-Do not invent requirements.
+Do not invent requirements, constraints, architectural relations, or implementation obligations.
 
-Do not invent architecture constraints.
+Clearly distinguish facts from assumptions.
 
 Do not hide uncertainty.
 
