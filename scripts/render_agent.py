@@ -13,7 +13,9 @@ from pathlib import Path
 
 
 VAR_PATTERN = re.compile(r"\$\{([A-Z0-9_]+)\}")
-
+DEFAULT_SECRETS_FILE = Path(
+    "config/langfuse.secrets.json"
+)
 
 def fail(message: str) -> None:
     print(f"ERROR: {message}", file=sys.stderr)
@@ -60,12 +62,43 @@ def substitute(text: str) -> str:
     )
 
 
-def auth_header() -> str:
-    public_key = env("LANGFUSE_PUBLIC_KEY")
-    secret_key = env("LANGFUSE_SECRET_KEY")
+def load_secrets(
+    path: Path = DEFAULT_SECRETS_FILE,
+):
+    if not path.is_file():
+        raise RuntimeError(
+            f"Langfuse secrets file not found: {path}"
+        )
 
-    if not public_key or not secret_key:
-        raise RuntimeError("Langfuse credentials are not set")
+    try:
+        data = json.loads(
+            path.read_text(encoding="utf-8")
+        )
+    except json.JSONDecodeError as error:
+        raise RuntimeError(
+            f"invalid Langfuse secrets JSON: "
+            f"{path}: {error}"
+        ) from error
+
+    public_key = data.get("public_key")
+    secret_key = data.get("secret_key")
+
+    if (
+        not isinstance(public_key, str)
+        or not public_key
+        or not isinstance(secret_key, str)
+        or not secret_key
+    ):
+        raise RuntimeError(
+            f"Langfuse secrets file must contain "
+            f"public_key and secret_key: {path}"
+        )
+
+    return public_key, secret_key
+
+
+def auth_header() -> str:
+    public_key, secret_key = load_secrets()
 
     raw = f"{public_key}:{secret_key}"
     encoded = base64.b64encode(

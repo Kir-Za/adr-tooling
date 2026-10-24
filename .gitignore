@@ -7,8 +7,10 @@ __pycache__/
 *.py[cod]
 .mypy_cache/
 
+# Local secrets
+config/langfuse.secrets.json
+
 # Generated OpenCode runtime
 AGENTS.md
 opencode.json
-.opencode/agents/
-.opencode/commands/
+.opencode/
