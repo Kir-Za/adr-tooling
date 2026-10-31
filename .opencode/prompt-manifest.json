@@ -1,0 +1,67 @@
+{
+  "agents": {
+    "adr-reviewer": {
+      "name": "adr/adr-reviewer",
+      "selector": "label:production",
+      "source": "langfuse",
+      "version": 1
+    },
+    "adr-writer": {
+      "name": "adr/adr-writer",
+      "selector": "label:production",
+      "source": "langfuse",
+      "version": 1
+    },
+    "architect": {
+      "name": "adr/architect",
+      "selector": "label:production",
+      "source": "langfuse",
+      "version": 1
+    },
+    "architecture-finder": {
+      "name": "adr/architecture-finder",
+      "selector": "label:production",
+      "source": "langfuse",
+      "version": 1
+    },
+    "consistency-auditor": {
+      "name": "adr/consistency-auditor",
+      "selector": "label:production",
+      "source": "langfuse",
+      "version": 1
+    }
+  },
+  "profile": "adr",
+  "skills": {
+    "adr-lifecycle": {
+      "name": "adr/skills/adr-lifecycle",
+      "selector": "label:production",
+      "source": "langfuse",
+      "version": 1
+    },
+    "adr-mermaid": {
+      "name": "adr/skills/adr-mermaid",
+      "selector": "label:production",
+      "source": "langfuse",
+      "version": 1
+    },
+    "architecture-analysis": {
+      "name": "adr/skills/architecture-analysis",
+      "selector": "label:production",
+      "source": "langfuse",
+      "version": 1
+    },
+    "architecture-consistency": {
+      "name": "adr/skills/architecture-consistency",
+      "selector": "label:production",
+      "source": "langfuse",
+      "version": 1
+    },
+    "openflowkit-architecture": {
+      "name": "adr/skills/openflowkit-architecture",
+      "selector": "label:production",
+      "source": "langfuse",
+      "version": 1
+    }
+  }
+}

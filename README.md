@@ -1,84 +1,62 @@
 # ADR Tooling
 
-`adr-tooling` — среда для AI-assisted разработки Architecture Decision Records на базе OpenCode.
-
-ADR и диаграммы хранятся в отдельном репозитории. Один clone `adr-tooling` работает с одним ADR-проектом.
-
-## Структура
-
-```text
-software/
-├── adr-tooling/
-└── project-adr/
-```
-
-В ADR repository ожидается:
-
-```text
-docs/adrs/ai/
-├── template.md
-├── proposed/
-└── approved/
-
-docs/diagrams/
-```
-
-## Роли
-
-```text
-architect           → GPT-6 Astra
-architecture-finder → GPT-6 Luna Fast
-adr-writer          → GPT-6 Sol
-adr-reviewer        → GPT-6 Astra
-consistency-auditor → GPT-6 Astra
-```
-
-`architect`, `finder`, `reviewer`, `auditor` — read-only.
-
-`adr-writer` может писать только в `proposed/`.
-
-AI не может изменять `approved/`, canonical template или утверждать ADR. Модели для ролей задаются в `project.mk`
-
 ## Настройка
 
-Создать локальную конфигурацию:
+Откройте:
 
 ```bash
-make init-project
+nano config/tooling.mk
 ```
 
-Отредактировать:
-
-```text
-config/project.mk
+Основной путь к ADR repository:
+```
+ADR_REPO := /absolute/path/to/project
 ```
 
-Основные параметры:
-
-```make
-PROJECT_NAME := project
-ADR_REPO := ../project-adr
-
+При необходимости измените пути ADR:
+```
 ADR_TEMPLATE := docs/adrs/ai/template.md
-ADR_APPROVED := docs/adrs/ai/approved
+ADR_APPROVED := docs/adrs/ai/accepted
 ADR_PROPOSED := docs/adrs/ai/proposed
 ADR_DIAGRAMS := docs/diagrams
 ```
 
-Затем:
-
-```bash
-make bootstrap
+В этом же файле можно изменить модели:
+```
+MODEL_ARCHITECT := openai/gpt-6-astra
+MODEL_WRITER := openai/gpt-6-sol
+MODEL_REVIEWER := openai/gpt-6-astra
+MODEL_FINDER := openai/gpt-6-luna-fast
+MODEL_AUDITOR := openai/gpt-6-astra
 ```
 
-Успешный результат:
 
-```text
-Bootstrap: OK
+Заполните поля в langfuse.secrets.json для подключения к Langfuse:
+```
+"public_key": ""
+"secret_key": ""
 ```
 
-## OpenCode v2.0.27
+После изменений:
+```
+make configure
+make check
+```
 
-Из-за текущего поведения model routing Makefile явно передаёт `--agent` и `--model`.
 
-После исправления OpenCode этот workaround можно будет убрать без изменения структуры проекта.
+## Запуск
+
+В терминале
+```
+make start
+```
+
+Или:
+```
+opencode
+```
+
+Основная команда внутри OpenCode:
+```
+/architect
+```

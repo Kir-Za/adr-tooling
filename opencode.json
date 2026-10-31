@@ -1,0 +1,20 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "references": {
+    "architecture": {
+      "path": "/home/green/Work/my_git/MAS",
+      "description": "Authoritative architecture repository containing approved/proposed ADRs and diagrams"
+    }
+  },
+  "mcp": {
+    "servers": {
+      "openflowkit": {
+        "type": "local",
+        "command": ["npx", "-y", "openflowkit", "mcp"],
+        "cwd": "/home/green/Work/my_git/MAS",
+        "disabled": false,
+        "codemode": false
+      }
+    }
+  }
+}

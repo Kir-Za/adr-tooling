@@ -1,0 +1,16 @@
+{
+  "models": {
+    "adr-reviewer": "openai/gpt-6-astra",
+    "adr-writer": "openai/gpt-6-sol",
+    "architect": "openai/gpt-6-astra",
+    "architecture-finder": "openai/gpt-6-luna-fast",
+    "consistency-auditor": "openai/gpt-6-astra"
+  },
+  "paths": {
+    "approved": "/home/green/Work/my_git/MAS/docs/adrs/ai/accepted",
+    "diagrams": "/home/green/Work/my_git/MAS/docs/diagrams",
+    "proposed": "/home/green/Work/my_git/MAS/docs/adrs/ai/proposed",
+    "repo": "/home/green/Work/my_git/MAS",
+    "template": "/home/green/Work/my_git/MAS/docs/adrs/ai/template.md"
+  }
+}

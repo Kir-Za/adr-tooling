@@ -1,16 +1,8 @@
+# Local runtime secrets
+config/langfuse.secrets.json
 
-# Local ADR project configuration
-config/project.mk
-
-# Python
+# Local/editor caches
 __pycache__/
 *.py[cod]
 .mypy_cache/
-
-# Local secrets
-config/langfuse.secrets.json
-
-# Generated OpenCode runtime
-AGENTS.md
-opencode.json
-.opencode/
+.venv/

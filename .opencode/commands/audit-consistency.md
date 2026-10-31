@@ -1,6 +1,6 @@
 ---
 description: Audit cross-ADR architecture consistency
-agent: ${AGENT_AUDITOR}
+agent: consistency-auditor
 subagent: true
 ---
 
