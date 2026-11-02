@@ -1,12 +1,12 @@
 # ADR Architecture Governance
 
-This OpenCode profile works with the architecture repository at `/home/green/Work/my_git/MAS/`.
+This OpenCode profile works with the architecture repository configured as `ADR_REPO` in `config/tooling.mk` (by default, `../acm-adr`).
 
 ## Authority
 
-- Approved ADRs under `/home/green/Work/my_git/MAS/docs/adrs/ai/accepted/` are accepted architectural authority.
-- Proposed ADRs under `/home/green/Work/my_git/MAS/docs/adrs/ai/proposed/` are drafts, not accepted architecture.
-- Diagrams under `/home/green/Work/my_git/MAS/docs/diagrams/` are supporting artifacts and must not override approved ADRs.
+- Approved ADRs under `docs/adrs/ai/approved/` in the configured repository are accepted architectural authority.
+- Proposed ADRs under `docs/adrs/ai/proposed/` in the configured repository are drafts, not accepted architecture.
+- Diagrams under `docs/diagrams/` in the configured repository are supporting artifacts and must not override approved ADRs.
 - Implementation evidence describes what exists; it does not silently replace accepted architecture.
 
 When implementation or a diagram conflicts with an approved ADR, report drift or conflict explicitly.

@@ -4,14 +4,14 @@ mode: subagent
 model: openai/gpt-6-sol
 permissions:
   - action: external_directory
-    resource: "/home/green/Work/my_git/MAS/**"
+    resource: {{ADR_REPO_GLOB}}
     effect: allow
 
   - action: read
     resource: "*"
     effect: deny
   - action: read
-    resource: "/home/green/Work/my_git/MAS/**"
+    resource: {{ADR_REPO_GLOB}}
     effect: allow
 
   - action: skill
@@ -41,7 +41,7 @@ permissions:
     resource: "*"
     effect: deny
   - action: edit
-    resource: "/home/green/Work/my_git/MAS/docs/adrs/ai/proposed/**"
+    resource: {{ADR_PROPOSED_GLOB}}
     effect: allow
 
   - action: shell

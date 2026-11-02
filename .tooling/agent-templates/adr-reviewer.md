@@ -4,13 +4,19 @@ mode: subagent
 model: openai/gpt-6-astra
 permissions:
   - action: external_directory
-    resource: "/home/green/Work/my_git/MAS/**"
+    resource: {{ADR_REPO_GLOB}}
     effect: allow
   - action: read
     resource: "*"
     effect: deny
   - action: read
-    resource: "/home/green/Work/my_git/MAS/**"
+    resource: {{ADR_REPO_GLOB}}
+    effect: allow
+  - action: external_directory
+    resource: "/private/var/folders/n5/3jycv53j65xfl3j3nwb69kj80000gn/T/opencode/acm-adr-review-14964/*"
+    effect: allow
+  - action: read
+    resource: "/private/var/folders/n5/3jycv53j65xfl3j3nwb69kj80000gn/T/opencode/acm-adr-review-14964/*"
     effect: allow
 
   - action: skill

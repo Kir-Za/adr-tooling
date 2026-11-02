@@ -47,13 +47,15 @@ help:
 configure:
 	@$(PYTHON) .tooling/configure.py \
 		--root . \
-		--config config/tooling.mk
+		--config config/tooling.mk \
+		--adr-repo "$(ADR_REPO)"
 
 
 config-check:
 	@$(PYTHON) .tooling/configure.py \
 		--root . \
 		--config config/tooling.mk \
+		--adr-repo "$(ADR_REPO)" \
 		--check
 
 
@@ -89,5 +91,8 @@ endif
 	@echo "ADR tooling: OK"
 
 
-start:
-	@opencode
+start: configure
+	@LANGFUSE_ENABLED="$(LANGFUSE_ENABLED)" \
+		LANGFUSE_BASE_URL="$(LANGFUSE_BASE_URL)" \
+		LANGFUSE_SECRETS_FILE="$(LANGFUSE_SECRETS_FILE)" \
+		opencode

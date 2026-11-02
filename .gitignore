@@ -2,6 +2,7 @@
 config/langfuse.secrets.json
 
 # Local/editor caches
+.opencode/agents/*.md
 __pycache__/
 *.py[cod]
 .mypy_cache/

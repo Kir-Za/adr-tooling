@@ -1,8 +1,9 @@
 # ADR repository
 
-ADR_REPO := /absolute/path/to/project
+# Repositories are expected as siblings in the workspace directory.
+ADR_REPO ?= ../acm-adr
 ADR_TEMPLATE := docs/adrs/ai/template.md
-ADR_APPROVED := docs/adrs/ai/accepted
+ADR_APPROVED := docs/adrs/ai/approved
 ADR_PROPOSED := docs/adrs/ai/proposed
 ADR_DIAGRAMS := docs/diagrams
 
@@ -18,7 +19,7 @@ MODEL_AUDITOR := openai/gpt-6-astra
 
 # Langfuse
 
-LANGFUSE_ENABLED := 1
+LANGFUSE_ENABLED := 0
 LANGFUSE_BASE_URL := http://localhost:3000
 LANGFUSE_PROMPT_LABEL := production
 LANGFUSE_SECRETS_FILE := config/langfuse.secrets.json
