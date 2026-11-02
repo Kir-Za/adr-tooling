@@ -4,13 +4,13 @@ mode: primary
 model: openai/gpt-6-astra
 permissions:
   - action: external_directory
-    resource: "/home/green/Work/my_git/MAS/**"
+    resource: {{ADR_REPO_GLOB}}
     effect: allow
   - action: read
     resource: "*"
     effect: deny
   - action: read
-    resource: "/home/green/Work/my_git/MAS/**"
+    resource: {{ADR_REPO_GLOB}}
     effect: allow
 
   - action: subagent

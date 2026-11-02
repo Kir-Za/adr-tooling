@@ -1,12 +1,17 @@
-import { Plugin } from "@opencode/plugin"
 import { Buffer } from "node:buffer"
 import { randomBytes } from "node:crypto"
 import { readFile } from "node:fs/promises"
 import { join } from "node:path"
+import { env } from "node:process"
 
-const ENABLED = "1" === "1"
-const BASE_URL = "http://localhost:3000".replace(/\/$/, "")
-const SECRETS_FILE = "config/langfuse.secrets.json"
+const ENABLED = env.LANGFUSE_ENABLED === "1"
+const BASE_URL = (
+  env.LANGFUSE_BASE_URL
+  ?? "http://localhost:3000"
+).replace(/\/$/, "")
+const SECRETS_FILE =
+  env.LANGFUSE_SECRETS_FILE
+  ?? "config/langfuse.secrets.json"
 
 type SessionState = {
   traceId: string
@@ -1290,10 +1295,10 @@ async function handleEvent(
   }
 }
 
-export default Plugin.define({
+export default {
   id: "langfuse",
 
-  setup(ctx) {
+  setup(ctx: any) {
     if (!ENABLED) {
       return
     }
@@ -1341,4 +1346,4 @@ export default Plugin.define({
       controller.abort()
     }
   },
-})
+}

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -59,7 +60,10 @@ def load_make_config(
         ):
             continue
 
-        if ":=" in line:
+        if "?=" in line:
+            key, value = line.split("?=", 1)
+
+        elif ":=" in line:
             key, value = (
                 line.split(
                     ":=",
@@ -121,13 +125,14 @@ def resolve_path(
 
 def desired_state(
     config: dict[str, str],
+    root: Path,
+    adr_repo_override: str | None = None,
 ) -> dict:
-    repo = Path(
-        required(
-            config,
-            "ADR_REPO",
-        )
-    ).expanduser().resolve()
+    repo = resolve_path(
+        root,
+        adr_repo_override
+        or required(config, "ADR_REPO"),
+    )
 
     paths = {
         "repo":
@@ -226,261 +231,67 @@ def validate_source_paths(
             )
 
 
-def load_runtime_state(
-    path: Path,
-) -> dict:
-    if not path.is_file():
-        fail(
-            "runtime state not found: "
-            f"{path}"
-        )
-
-    try:
-        raw = json.loads(
-            path.read_text(
-                encoding="utf-8",
-            )
-        )
-    except json.JSONDecodeError as exc:
-        fail(
-            "invalid runtime state: "
-            f"{exc}"
-        )
-
-    if not isinstance(
-        raw.get("paths"),
-        dict,
-    ):
-        fail(
-            "runtime state has "
-            "no paths"
-        )
-
-    if not isinstance(
-        raw.get("models"),
-        dict,
-    ):
-        fail(
-            "runtime state has "
-            "no models"
-        )
-
-    return {
-        "paths": {
-            key:
-                Path(
-                    value
-                ).resolve()
-            for key, value
-            in raw[
-                "paths"
-            ].items()
-        },
-        "models":
-            dict(
-                raw[
-                    "models"
-                ]
-            ),
-    }
-
-
-def save_runtime_state(
-    path: Path,
-    state: dict,
-) -> None:
-    data = {
-        "paths": {
-            key:
-                str(value)
-            for key, value
-            in state[
-                "paths"
-            ].items()
-        },
-        "models":
-            state[
-                "models"
-            ],
-    }
-
-    path.write_text(
-        json.dumps(
-            data,
-            indent=2,
-            sort_keys=True,
-        )
-        + "\n",
-        encoding="utf-8",
-    )
-
-
-def configure_opencode(
-    root: Path,
-    desired: dict,
-) -> None:
-    path = (
-        root
-        / "opencode.json"
-    )
-
-    try:
-        data = json.loads(
-            path.read_text(
-                encoding="utf-8",
-            )
-        )
-
-        data[
-            "references"
-        ][
-            "architecture"
-        ][
-            "path"
-        ] = str(
-            desired[
-                "paths"
-            ][
-                "repo"
-            ]
-        )
-
-        data[
-            "mcp"
-        ][
-            "servers"
-        ][
-            "openflowkit"
-        ][
-            "cwd"
-        ] = str(
-            desired[
-                "paths"
-            ][
-                "repo"
-            ]
-        )
-
-    except (
-        FileNotFoundError,
-        json.JSONDecodeError,
-        KeyError,
-        TypeError,
-    ) as exc:
-        fail(
-            "cannot configure "
-            f"opencode.json: {exc}"
-        )
-
-    path.write_text(
-        json.dumps(
-            data,
-            indent=2,
-        )
-        + "\n",
-        encoding="utf-8",
-    )
-
-
-def replace_old_paths(
-    text: str,
-    old: dict[str, Path],
-    new: dict[str, Path],
-) -> str:
-    pairs = sorted(
-        (
-            (
-                str(
-                    old[key]
-                ),
-                str(
-                    new[key]
-                ),
-            )
-            for key in old
-            if key in new
-        ),
-        key=lambda item:
-            len(
-                item[0]
-            ),
-        reverse=True,
-    )
-
-    result = text
-
-    for before, after in pairs:
-        result = (
-            result.replace(
-                before,
-                after,
-            )
-        )
-
-    return result
-
-
 def configure_agents(
     root: Path,
-    old_state: dict,
     new_state: dict,
 ) -> None:
-    directory = (
+    templates = (
         root
-        / ".opencode"
-        / "agents"
+        / ".tooling"
+        / "agent-templates"
     )
+    directory = root / ".opencode" / "agents"
 
-    if not directory.is_dir():
+    if not templates.is_dir():
         fail(
-            "agents directory not found: "
-            f"{directory}"
+            "agent templates directory not found: "
+            f"{templates}"
         )
+    directory.mkdir(parents=True, exist_ok=True)
 
     for agent, model in (
         new_state[
             "models"
         ].items()
     ):
-        path = (
-            directory
+        template_path = (
+            templates
             / f"{agent}.md"
         )
+        path = directory / f"{agent}.md"
 
-        if not path.is_file():
+        if not template_path.is_file():
             fail(
-                "agent file not found: "
-                f"{path}"
+                "agent template not found: "
+                f"{template_path}"
             )
 
-        text = path.read_text(
+        text = template_path.read_text(
             encoding="utf-8",
         )
-
-        text = replace_old_paths(
-            text,
-            old_state[
-                "paths"
-            ],
-            new_state[
-                "paths"
-            ],
+        paths = new_state["paths"]
+        text = text.replace(
+            "{{ADR_REPO_GLOB}}",
+            json.dumps(
+                f"{paths['repo']}/*",
+                ensure_ascii=False,
+            ),
+        ).replace(
+            "{{ADR_PROPOSED_GLOB}}",
+            json.dumps(
+                f"{paths['proposed']}/*",
+                ensure_ascii=False,
+            ),
         )
 
-        old_model = (
-            old_state[
-                "models"
-            ].get(
-                agent
-            )
-        )
-
-        if old_model:
-            text = text.replace(
-                f"model: {old_model}",
-                f"model: {model}",
-                1,
-            )
+        lines = text.splitlines()
+        for index, line in enumerate(lines):
+            if line.startswith("model:"):
+                lines[index] = f"model: {model}"
+                break
+        else:
+            fail(f"model not configured in {path}")
+        text = "\n".join(lines) + "\n"
 
         path.write_text(
             text,
@@ -490,6 +301,33 @@ def configure_agents(
         print(
             f"configured: {path}"
         )
+
+
+def configure_opencode(
+    root: Path,
+    state: dict,
+) -> None:
+    path = root / "opencode.json"
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        relative_repo = os.path.relpath(
+            state["paths"]["repo"],
+            root,
+        )
+        data["references"]["architecture"]["path"] = relative_repo
+        data["mcp"]["servers"]["openflowkit"]["cwd"] = relative_repo
+    except (
+        FileNotFoundError,
+        json.JSONDecodeError,
+        KeyError,
+        TypeError,
+    ) as exc:
+        fail(f"cannot configure opencode.json: {exc}")
+
+    path.write_text(
+        json.dumps(data, indent=2) + "\n",
+        encoding="utf-8",
+    )
 
 
 def current_model(
@@ -515,35 +353,10 @@ def current_model(
 def check_runtime(
     root: Path,
     desired: dict,
-    state_path: Path,
 ) -> None:
-    state = load_runtime_state(
-        state_path
-    )
-
     desired_paths = desired[
         "paths"
     ]
-
-    if state[
-        "paths"
-    ] != desired_paths:
-        fail(
-            "runtime paths differ "
-            "from config; run "
-            "make configure"
-        )
-
-    if state[
-        "models"
-    ] != desired[
-        "models"
-    ]:
-        fail(
-            "runtime models differ "
-            "from config; run "
-            "make configure"
-        )
 
     try:
         opencode = json.loads(
@@ -555,7 +368,8 @@ def check_runtime(
             )
         )
 
-        reference = Path(
+        reference = resolve_path(
+            root,
             opencode[
                 "references"
             ][
@@ -563,9 +377,10 @@ def check_runtime(
             ][
                 "path"
             ]
-        ).resolve()
+        )
 
-        mcp_cwd = Path(
+        mcp_cwd = resolve_path(
+            root,
             opencode[
                 "mcp"
             ][
@@ -575,7 +390,7 @@ def check_runtime(
             ][
                 "cwd"
             ]
-        ).resolve()
+        )
 
     except (
         FileNotFoundError,
@@ -635,10 +450,28 @@ def check_runtime(
             encoding="utf-8",
         )
 
-        if "${ADR_" in text:
+        if "{{ADR_" in text:
             fail(
                 "unresolved ADR "
                 f"placeholder in {path}"
+            )
+
+        if json.dumps(
+            f"{desired_paths['repo']}/*",
+            ensure_ascii=False,
+        ) not in text:
+            fail(
+                f"{agent} repository permissions "
+                "do not match ADR_REPO"
+            )
+
+        if agent == "adr-writer" and json.dumps(
+            f"{desired_paths['proposed']}/*",
+            ensure_ascii=False,
+        ) not in text:
+            fail(
+                "adr-writer edit permission "
+                "does not match ADR_PROPOSED"
             )
 
         if "${MODEL_" in text:
@@ -704,6 +537,10 @@ def main() -> int:
         "--config",
         default="config/tooling.mk",
     )
+    parser.add_argument(
+        "--adr-repo",
+        help="Override ADR_REPO from the Make configuration",
+    )
 
     parser.add_argument(
         "--check",
@@ -726,19 +563,15 @@ def main() -> int:
             / config_path
         )
 
-    state_path = (
-        root
-        / ".tooling"
-        / "runtime-state.json"
-    )
-
     try:
         config = load_make_config(
             config_path
         )
 
         desired = desired_state(
-            config
+            config,
+            root,
+            args.adr_repo,
         )
 
         validate_source_paths(
@@ -749,7 +582,6 @@ def main() -> int:
             check_runtime(
                 root,
                 desired,
-                state_path,
             )
 
             print(
@@ -762,10 +594,6 @@ def main() -> int:
 
             return 0
 
-        old_state = load_runtime_state(
-            state_path
-        )
-
         configure_opencode(
             root,
             desired,
@@ -773,19 +601,12 @@ def main() -> int:
 
         configure_agents(
             root,
-            old_state,
-            desired,
-        )
-
-        save_runtime_state(
-            state_path,
             desired,
         )
 
         check_runtime(
             root,
             desired,
-            state_path,
         )
 
         print()

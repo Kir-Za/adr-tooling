@@ -2,21 +2,38 @@
 
 ## Настройка
 
-Откройте:
+Нужны `git`, `make`, Python 3, Node.js с `npx` и установленный OpenCode.
+
+Репозитории `adr-tooling` и `acm-adr` должны лежать рядом в общей папке:
+
+```text
+workspace/
+├── adr-tooling/
+└── acm-adr/
+```
+
+Путь задаётся относительно `adr-tooling`, поэтому после клонирования обоих
+репозиториев в эту структуру дополнительные правки не нужны.
+
+Для другой раскладки укажите путь к `acm-adr` в `config/tooling.mk` или
+переопределите его для команды:
 
 ```bash
-nano config/tooling.mk
+make ADR_REPO=/path/to/acm-adr configure
 ```
 
-Основной путь к ADR repository:
-```
-ADR_REPO := /absolute/path/to/project
+Переопределение командой действует только на неё. Для следующих запусков
+укажите тот же `ADR_REPO` в `config/tooling.mk` либо передавайте его и `make
+start`:
+
+```bash
+make ADR_REPO=/path/to/acm-adr start
 ```
 
-При необходимости измените пути ADR:
+При необходимости измените относительные пути ADR:
 ```
 ADR_TEMPLATE := docs/adrs/ai/template.md
-ADR_APPROVED := docs/adrs/ai/accepted
+ADR_APPROVED := docs/adrs/ai/approved
 ADR_PROPOSED := docs/adrs/ai/proposed
 ADR_DIAGRAMS := docs/diagrams
 ```
@@ -31,7 +48,9 @@ MODEL_AUDITOR := openai/gpt-6-astra
 ```
 
 
-Заполните поля в langfuse.secrets.json для подключения к Langfuse:
+Конфигурация использует относительные пути и не сохраняет состояние с
+абсолютными путями машины. Для подключения к Langfuse заполните секреты в
+`config/langfuse.secrets.json`:
 ```
 "public_key": ""
 "secret_key": ""
@@ -55,6 +74,9 @@ make start
 ```
 opencode
 ```
+
+Прямой запуск `opencode` доступен после `make configure`; команда `make start`
+сама выполняет настройку и запускает OpenCode.
 
 Основная команда внутри OpenCode:
 ```
